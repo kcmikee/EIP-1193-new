@@ -58,8 +58,19 @@ export function useWalletConnection() {
 
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeListener("accountsChanged", () => {});
-        window.ethereum.removeListener("chainChanged", () => {});
+        window.ethereum.removeListener(
+          "accountsChanged",
+          (accounts: string[]) => {
+            if (accounts.length > 0) {
+              setAccount(accounts[0]);
+            } else {
+              disconnect();
+            }
+          }
+        );
+        window.ethereum.removeListener("chainChanged", (chainId: unknown) => {
+          setChainId(chainId as string);
+        });
       }
     };
   }, [disconnect]);
