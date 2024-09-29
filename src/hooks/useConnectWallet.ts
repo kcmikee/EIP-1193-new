@@ -41,36 +41,29 @@ export function useWalletConnection() {
     setIsConnected(false);
   }, []);
 
+  const accountChange = useCallback((accounts: string[]) => {
+    if (accounts.length > 0) {
+      setAccount(accounts[0]);
+    } else {
+      disconnect();
+    }
+  }, []);
+
+  const chainChanged = useCallback((chainId: unknown) => {
+    setChainId(chainId as string);
+  }, []);
+
   useEffect(() => {
     if (window.ethereum) {
-      window.ethereum.on("accountsChanged", (accounts: string[]) => {
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-        } else {
-          disconnect();
-        }
-      });
+      window.ethereum.on("accountsChanged", accountChange);
 
-      window.ethereum.on("chainChanged", (chainId: unknown) => {
-        setChainId(chainId as string);
-      });
+      window.ethereum.on("chainChanged", chainChanged);
     }
 
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeListener(
-          "accountsChanged",
-          (accounts: string[]) => {
-            if (accounts.length > 0) {
-              setAccount(accounts[0]);
-            } else {
-              disconnect();
-            }
-          }
-        );
-        window.ethereum.removeListener("chainChanged", (chainId: unknown) => {
-          setChainId(chainId as string);
-        });
+        window.ethereum.removeListener("accountsChanged", accountChange);
+        window.ethereum.removeListener("chainChanged", chainChanged);
       }
     };
   }, [disconnect]);
