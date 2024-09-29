@@ -41,13 +41,16 @@ export function useWalletConnection() {
     setIsConnected(false);
   }, []);
 
-  const accountChange = useCallback((accounts: string[]) => {
-    if (accounts.length > 0) {
-      setAccount(accounts[0]);
-    } else {
-      disconnect();
-    }
-  }, []);
+  const accountChange = useCallback(
+    (accounts: string[]) => {
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+      } else {
+        disconnect();
+      }
+    },
+    [disconnect]
+  );
 
   const chainChanged = useCallback((chainId: unknown) => {
     setChainId(chainId as string);
@@ -66,7 +69,7 @@ export function useWalletConnection() {
         window.ethereum.removeListener("chainChanged", chainChanged);
       }
     };
-  }, [disconnect]);
+  }, [disconnect, chainChanged, accountChange]);
 
   return { account, chainId, connect, disconnect, isConnected };
 }
